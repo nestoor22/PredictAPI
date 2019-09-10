@@ -14,16 +14,30 @@ TRANSFORMERS_OBJECTS: dict = joblib.load(FOLDER_WITH_MODELS + 'transformers_info
 application_routes = web.RouteTableDef()
 
 with CustomObjectScope({'GlorotUniform': glorot_uniform()}):
+
     price_prediction_model = model_from_json(open('models/price_prediction_model.json', 'r').read())
     price_prediction_model.load_weights('models/price_prediction_weights.h5')
+
+    area_prediction_model = model_from_json(open('models/area_prediction_model.json', 'r').read())
+    area_prediction_model.load_weights('models/area_prediction_weights.h5')
+
+    distance_to_center_prediction_model = model_from_json(open('models/distance_to_center_prediction_model.json', 'r').read())
+    distance_to_center_prediction_model.load_weights('models/distance_to_center_weights.h5')
+
+    room_prediction_model = model_from_json(open('models/price_prediction_model.json', 'r').read())
+    room_prediction_model.load_weights('models/room_prediction_weights.h5')
 
 
 @application_routes.get('/predictPrice')
 async def predict_price(request):
     data = await request.json()
     data = await scaling_data_to_good_view(pd.DataFrame([ast.literal_eval(data)]))
-    print(price_prediction_model.predict(data))
-    return web.Response(text='Done')
+    return web.Response(text=str(price_prediction_model.predict(data)[0][0]))
+
+
+
+
+
 
 if __name__ == '__main__':
 
