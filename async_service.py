@@ -1,11 +1,7 @@
-import os
 import ast
 import joblib
-import asyncio
-import numpy as np
 import pandas as pd
 from aiohttp import web
-from threading import Thread
 from scale_data import scaling_data_to_good_view
 from keras.models import model_from_json
 from keras.utils import CustomObjectScope
@@ -20,8 +16,6 @@ application_routes = web.RouteTableDef()
 with CustomObjectScope({'GlorotUniform': glorot_uniform()}):
     price_prediction_model = model_from_json(open('models/price_prediction_model.json', 'r').read())
     price_prediction_model.load_weights('models/price_prediction_weights.h5')
-
-
 
 
 @application_routes.get('/predictPrice')
