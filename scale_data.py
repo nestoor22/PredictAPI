@@ -2,13 +2,9 @@ import joblib
 import numpy as np
 import pandas as pd
 
+
 FOLDER_WITH_MODELS = '../apartmentML/models/'
 TRANSFORMERS_OBJECTS: dict = joblib.load(FOLDER_WITH_MODELS + 'transformers_info')
-
-# Test thing
-d = {'Area': 64, 'Rooms': 2, 'Floor': 4, 'BuildingType': 'New building', 'DistanceToCenter': 3,
-     'LivingArea': 28.5, 'KitchenArea': 12, 'Condition': 'distinctive', 'WallsMaterial': 'brick',
-     'Balconies': 1, 'CeilingHeight': 2.75, 'Floors': 10}
 
 
 def search_different_types_column(data_frame):
@@ -24,7 +20,7 @@ def search_different_types_column(data_frame):
     return numeric_columns, string_columns
 
 
-def scaling_data_to_good_view(data_frame):
+async def scaling_data_to_good_view(data_frame):
 
     numeric_columns, string_columns = search_different_types_column(data_frame)
 
@@ -42,8 +38,4 @@ def scaling_data_to_good_view(data_frame):
                                                                   for i in range(labels_to_binary.shape[1])])
 
         data_frame = pd.concat([data_frame.drop(columns=column), one_hot_dataset], axis=1)
-
-    print(data_frame)
-
-
-scaling_data_to_good_view(pd.DataFrame([d]))
+    return data_frame
