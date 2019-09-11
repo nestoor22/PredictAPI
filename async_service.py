@@ -39,21 +39,21 @@ async def predict_price(request):
 async def predict_price(request):
     data = await request.json()
     data = await scaling_data_to_good_view(pd.DataFrame([ast.literal_eval(data)]))
-    return web.Response(text=str(price_prediction_model.predict(data)[0][0]))
+    return web.Response(text=str(area_prediction_model.predict(data)[0][0]))
 
 
 @application_routes.get('/predictRooms')
 async def predict_price(request):
     data = await request.json()
     data = await scaling_data_to_good_view(pd.DataFrame([ast.literal_eval(data)]))
-    return web.Response(text=str(price_prediction_model.predict(data)[0][0]))
+    return web.Response(text=str(room_prediction_model.predict(data)[0][0]))
 
 
 @application_routes.get('/predictDistance')
 async def predict_price(request):
     data = await request.json()
     data = await scaling_data_to_good_view(pd.DataFrame([ast.literal_eval(data)]))
-    return web.Response(text=str(price_prediction_model.predict(data)[0][0]))
+    return web.Response(text=str(room_prediction_model.predict(data)[0][0]))
 
 
 if __name__ == '__main__':
