@@ -5,8 +5,10 @@ import aiohttp
 
 FOLDER_WITH_MODELS = '../apartmentML/models/'
 
+# Dict with information about sklearn preprocessing objects
 transformer = joblib.load(FOLDER_WITH_MODELS+'transformers_info')
 
+# Data to send
 d = json.dumps({'Cost': 96000, 'DistanceToCenter': 3.4, 'Area': 126, 'Floor': 2, 'BuildingType': 'New building',
                 'LivingArea': 96, 'KitchenArea': 22, 'Condition': 'luxury', 'WallsMaterial': 'brick',
                 'Balconies': 0, 'CeilingHeight': 2.75, 'Floors': 5})

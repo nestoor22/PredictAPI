@@ -55,21 +55,25 @@ async def scaling_data_to_good_view(data_frame):
     return data_frame
 
 
+# Return original price
 def rescale_price(value):
     original_value = TRANSFORMERS_OBJECTS['Cost']['transformer-object'].inverse_transform(value.reshape(1, -1))
     return original_value[0][0]
 
 
+# Return original area
 def rescale_area(value):
     original_value = TRANSFORMERS_OBJECTS['Area']['transformer-object'].inverse_transform(value.reshape(1, -1))
     return original_value[0][0]
 
 
+# Return original distance
 def rescale_distance(value):
     original_value = TRANSFORMERS_OBJECTS['DistanceToCenter']['transformer-object'].inverse_transform(value.reshape(1, -1))
     return original_value[0][0]
 
 
+# Return original count of rooms. Add 1 because in one hot enc class started from 0 but min class in pur case is 1
 def get_value_for_rooms(values: np.array):
     value = np.argmax(values) + 1
     return value

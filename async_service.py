@@ -44,8 +44,7 @@ async def predict_area(request):
 async def predict_rooms(request):
     data = await request.json()
     data = await scaling_data_to_good_view(pd.DataFrame([ast.literal_eval(data)]))
-    result = get_value_for_rooms(room_prediction_model.predict(data))
-    return web.Response(text=str(result))
+    return web.Response(text=str(get_value_for_rooms(room_prediction_model.predict(data))))
 
 
 @application_routes.get('/predictDistance')
