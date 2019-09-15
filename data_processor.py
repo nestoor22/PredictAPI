@@ -1,39 +1,12 @@
 import joblib
 import numpy as np
 import pandas as pd
-import mysql.connector
-from keras.models import model_from_json
-from keras.utils import CustomObjectScope
-from keras.initializers import glorot_uniform
-
 
 # Constants
 FOLDER_WITH_MODELS = '../apartmentML/models/'
 
 # Dict with information how data was scaled. Created in apartmentML
 TRANSFORMERS_OBJECTS: dict = joblib.load(FOLDER_WITH_MODELS + 'transformers_info')
-
-FOLDER_WITH_MODELS = '../apartmentML/models/'
-
-connection = mysql.connector.connect(host='127.0.0.1', user='root', password='asdfghjkl228',
-                                     use_pure=True)
-
-cursor = connection.cursor(dictionary=True, buffered=True)
-
-
-with CustomObjectScope({'GlorotUniform': glorot_uniform()}):
-
-    price_prediction_model = model_from_json(open('models/price_prediction_model.json', 'r').read())
-    price_prediction_model.load_weights('models/price_prediction_weights.h5')
-
-    area_prediction_model = model_from_json(open('models/area_prediction_model.json', 'r').read())
-    area_prediction_model.load_weights('models/area_prediction_weights.h5')
-
-    distance_to_center_prediction_model = model_from_json(open('models/distance_to_center_prediction_model.json', 'r').read())
-    distance_to_center_prediction_model.load_weights('models/distance_to_center_weights.h5')
-
-    room_prediction_model = model_from_json(open('models/rooms_prediction_model.json', 'r').read())
-    room_prediction_model.load_weights('models/rooms_prediction_weights.h5')
 
 
 def search_different_types_column(data_frame):
@@ -83,12 +56,9 @@ def scaling_data_to_good_view(data_frame):
 
 
 # Return original price
-def predict_and_save_price(data):
-    data_to_predict = scaling_data_to_good_view(pd.DataFrame([data]))
-    predicted_value = price_prediction_model.predict(data_to_predict)
-    original_value = TRANSFORMERS_OBJECTS['Cost']['transformer-object'].inverse_transform(predicted_value.reshape(1, -1))
-    cursor.execute(f"""INSERT INTO dream_house.prices VALUES ({original_value})""")
-    connection.commit()
+def return_original_price(value):
+    original_value = TRANSFORMERS_OBJECTS['Cost']['transformer-object'].inverse_transform(value.reshape(1, -1))
+    return original_value[0][0]
 
 
 # Return original area
