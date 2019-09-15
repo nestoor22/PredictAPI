@@ -1,5 +1,5 @@
-aiohttp==3.6.0
-asyncio==3.4.3
+celery==4.3.0
+flask==1.1.1
 h5py==2.10.0
 joblib==0.13.2
 Keras==2.2.5

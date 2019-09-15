@@ -1,15 +1,20 @@
 import ast
-import pandas as pd
-from aiohttp import web
+from flask import Flask, request
+from celery import Celery
 from keras.models import model_from_json
 from keras.utils import CustomObjectScope
 from keras.initializers import glorot_uniform
-from data_processor import scaling_data_to_good_view, rescale_price, rescale_area, rescale_distance, get_value_for_rooms
 
+app = Flask(__name__)
+app.config['CELERY_BROKER_URL'] = 'redis://localhost:6380/0'
+app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
 
-FOLDER_WITH_MODELS = '../apartmentML/models/'
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
 
-application_routes = web.RouteTableDef()
+app = Flask(__name__)
+app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
+app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
 
 with CustomObjectScope({'GlorotUniform': glorot_uniform()}):
 
@@ -26,35 +31,16 @@ with CustomObjectScope({'GlorotUniform': glorot_uniform()}):
     room_prediction_model.load_weights('models/rooms_prediction_weights.h5')
 
 
-@application_routes.get('/predictPrice')
-async def predict_price(request):
-    data = await request.json()
-    data = await scaling_data_to_good_view(pd.DataFrame([ast.literal_eval(data)]))
-    return web.Response(text=str(rescale_price(price_prediction_model.predict(data)[0][0])))
+@celery.task
+def predict_price_from_data(data):
+    data_to_predict = ast.literal_eval(data)
 
 
-@application_routes.get('/predictArea')
-async def predict_area(request):
-    data = await request.json()
-    data = await scaling_data_to_good_view(pd.DataFrame([ast.literal_eval(data)]))
-    return web.Response(text=str(rescale_area(area_prediction_model.predict(data)[0][0])))
+@app.route('/predictPrice/', methods=['GET'])
+def predict_price():
+    data = request.json
+    return 'Sebek'
 
 
-@application_routes.get('/predictRooms')
-async def predict_rooms(request):
-    data = await request.json()
-    data = await scaling_data_to_good_view(pd.DataFrame([ast.literal_eval(data)]))
-    return web.Response(text=str(get_value_for_rooms(room_prediction_model.predict(data))))
-
-
-@application_routes.get('/predictDistance')
-async def predict_distance(request):
-    data = await request.json()
-    data = await scaling_data_to_good_view(pd.DataFrame([ast.literal_eval(data)]))
-    return web.Response(text=str(rescale_distance(distance_to_center_prediction_model.predict(data)[0][0])))
-
-
-app = web.Application()
-app.add_routes(application_routes)
-web.run_app(app, host='localhost', port=3030)
-
+if __name__ == '__main__':
+    app.run(host='localhost', debug=True)

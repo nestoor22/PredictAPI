@@ -6,5 +6,3 @@
 
 2. Run web-service in console:  
 `python async_service.py`
-
-3. Use _async_client_ to send data.
