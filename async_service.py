@@ -13,5 +13,26 @@ def predict_price():
     return 'OK'
 
 
+@app.route('/predictArea/', methods=['GET'])
+def predict_area():
+    data = request.json
+    predict_area_from_data.delay(data)
+    return 'OK'
+
+
+@app.route('/predictDistance/', methods=['GET'])
+def predict_distance_to_center():
+    data = request.json
+    predict_distance_to_center_from_data.delay(data)
+    return 'OK'
+
+
+@app.route('/predictRooms/', methods=['GET'])
+def predict_rooms():
+    data = request.json
+    predict_rooms_number_from_data.delay(data)
+    return 'OK'
+
+
 if __name__ == '__main__':
     app.run(host='localhost', debug=True)

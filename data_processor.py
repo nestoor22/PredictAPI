@@ -62,18 +62,19 @@ def return_original_price(value):
 
 
 # Return original area
-def predict_and_save_area(value):
+def return_original_area(value):
     original_value = TRANSFORMERS_OBJECTS['Area']['transformer-object'].inverse_transform(value.reshape(1, -1))
     return original_value[0][0]
 
 
 # Return original distance
-def predict_and_save_distance(value):
-    original_value = TRANSFORMERS_OBJECTS['DistanceToCenter']['transformer-object'].inverse_transform(value.reshape(1, -1))
+def return_original_distance(value):
+    original_value = TRANSFORMERS_OBJECTS['DistanceToCenter']['transformer-object'].\
+        inverse_transform(value.reshape(1, -1))
     return original_value[0][0]
 
 
 # Return original count of rooms. Add 1 because in one hot enc class started from 0 but min class in pur case is 1
-def predict_and_save_rooms(values: np.array):
+def return_original_rooms_number(values: np.array):
     value = np.argmax(values) + 1
     return value
