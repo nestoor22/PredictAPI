@@ -1,6 +1,6 @@
-import pandas as pd
 from flask import Flask, request
-from predict_data.celery import *
+from predict_data.celery import predict_price_from_data, predict_rooms_number_from_data,\
+    predict_area_from_data, predict_distance_to_center_from_data
 
 app = Flask(__name__)
 app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
