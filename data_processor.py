@@ -31,6 +31,7 @@ def search_different_types_column(data_frame):
 
 def scaling_data_to_good_view(data_frame):
 
+    # Two list with columns names
     numeric_columns, string_columns = search_different_types_column(data_frame)
 
     # Scale numeric columns

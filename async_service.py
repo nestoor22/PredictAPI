@@ -2,10 +2,10 @@ from flask import Flask, request
 from predict_data.celery import predict_price_from_data, predict_rooms_number_from_data,\
     predict_area_from_data, predict_distance_to_center_from_data
 
-app = Flask(__name__)
-app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
+app = Flask(__name__)                                                       # Create app
+app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'                # Add celery settings to application
 
-
+# Create flask routes. All functions get data as json and run celery task
 @app.route('/predictPrice/', methods=['GET'])
 def predict_price():
     data = request.json

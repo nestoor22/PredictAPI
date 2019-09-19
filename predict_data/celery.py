@@ -2,9 +2,7 @@ import pandas as pd
 import tensorflow as tf
 from celery import Celery
 from keras import backend as K
-from keras.models import model_from_json
-from keras.utils import CustomObjectScope
-from keras.initializers import glorot_uniform
+from helpers import load_models, create_connection
 from data_processor import return_original_price, return_original_area, return_original_distance,\
     return_original_rooms_number, scaling_data_to_good_view
 
@@ -13,30 +11,9 @@ from data_processor import return_original_price, return_original_area, return_o
 
 celery = Celery('', broker='redis://localhost:6379/0')
 
-
-def create_connection():
-    import mysql.connector
-    connection = mysql.connector.connect(host='127.0.0.1', port=3306, user='root', password='asdfghjkl228',
-                                         use_pure=True)
-    cursor = connection.cursor()
-    return connection, cursor
-
-
-def load_models(model_predict=None):
-    K.clear_session()
-    if model_predict is not None:
-        with CustomObjectScope({'GlorotUniform': glorot_uniform()}):
-            model = model_from_json(open('models/{}_prediction_model.json'.format(model_predict), 'r').read())
-            model.load_weights('models/{}_prediction_weights.h5'.format(model_predict))
-        return model
-    else:
-        return None
-
-
 @celery.task
 def predict_price_from_data(data: dict):
     user_id = data.pop('user_id')
-
     price_prediction_model = load_models('price')
     data_to_predict = scaling_data_to_good_view(pd.DataFrame([data]))
 
