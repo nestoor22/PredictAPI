@@ -1,7 +1,7 @@
 def create_connection():
     # Create connection to database
     import mysql.connector
-    connection = mysql.connector.connect(host='127.0.0.1', port=3306, user='<your_user>', password='<your password>',
+    connection = mysql.connector.connect(host='127.0.0.1', port=3306, user='root', password='asdfghjkl228',
                                          use_pure=True)
     cursor = connection.cursor()
     return connection, cursor
@@ -28,5 +28,15 @@ def load_models(model_predict=None):
         return None
 
 
-def write_to_db(data: dict):
-    pass
+def write_to_db(data: dict, db_cursor):
+    place_holders = ", ".join("'"+str(value)+"'" for value in data.values())
+    columns_query = ','.join(list(data.keys()))
+    sql_query = """INSERT INTO dream_house.dream_house_datatopredict (%s) VALUES (%s)""" % (columns_query, place_holders)
+    db_cursor.execute(sql_query)
+
+if __name__ == '__main__':
+    d = {'user_id': 1, 'rooms': 3, 'distance_to_center': 3.4, 'area': 126, 'floor': 2, 'building_type': 'New building',
+         'living_area': 96, 'kitchen_area': 22, 'conditions': 'luxury', 'walls_material': 'brick',
+         'balconies': 0, 'ceiling_height': 2.75, 'floors': 5}
+    con, cur = create_connection()
+    write_to_db(d, cur)

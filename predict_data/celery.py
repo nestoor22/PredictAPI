@@ -2,7 +2,7 @@ import pandas as pd
 import tensorflow as tf
 from celery import Celery
 from keras import backend as K
-from helpers import load_models, create_connection
+from helpers import load_models, create_connection, write_to_db
 from data_processor import return_original_price, return_original_area, return_original_distance,\
     return_original_rooms_number, scaling_data_to_good_view
 
@@ -10,6 +10,7 @@ from data_processor import return_original_price, return_original_area, return_o
 
 
 celery = Celery('', broker='redis://localhost:6379/0')
+
 
 @celery.task
 def predict_price_from_data(data: dict):
@@ -22,10 +23,11 @@ def predict_price_from_data(data: dict):
         predicted_price = price_prediction_model.predict(data_to_predict)
 
     K.clear_session()
-
     data['price'] = return_original_price(predicted_price)
     data['user_id'] = user_id
-    print(data)
+    connection, cursor = create_connection()
+    write_to_db(data, cursor)
+    connection.commit()
     return 1
 
 
