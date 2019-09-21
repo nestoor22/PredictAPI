@@ -25,9 +25,11 @@ def predict_price_from_data(data: dict):
     K.clear_session()
     data['price'] = return_original_price(predicted_price)
     data['user_id'] = user_id
+
     connection, cursor = create_connection()
     write_to_db(data, cursor)
     connection.commit()
+
     return 1
 
 
@@ -45,6 +47,10 @@ def predict_area_from_data(data: dict):
     data['area'] = return_original_area(predicted_area)
     data['user_id'] = user_id
 
+    connection, cursor = create_connection()
+    write_to_db(data, cursor)
+    connection.commit()
+
     return 1
 
 
@@ -61,6 +67,11 @@ def predict_distance_to_center_from_data(data: dict):
 
     data['distance_to_center'] = return_original_distance(predicted_distance_to_center)
     data['user_id'] = user_id
+
+    connection, cursor = create_connection()
+    write_to_db(data, cursor)
+    connection.commit()
+
     return 1
 
 
@@ -77,6 +88,10 @@ def predict_rooms_number_from_data(data: dict):
 
     data['rooms'] = return_original_rooms_number(predicted_rooms)
     data['user_id'] = user_id
-    # Function which update table will be next
+
+    connection, cursor = create_connection()
+    write_to_db(data, cursor)
+    connection.commit()
+
     return 1
 
