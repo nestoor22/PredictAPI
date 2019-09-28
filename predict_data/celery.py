@@ -9,7 +9,7 @@ from data_processor import return_original_price, return_original_area, return_o
 #  celery -A predict_data.celery worker -l info -P gevent           -- for running celery
 
 
-celery = Celery('', broker='redis://localhost:6379/0')
+celery = Celery('', broker='redis://localhost:6380/0')
 
 
 @celery.task

@@ -7,6 +7,7 @@ FOLDER_WITH_MODELS = '../apartmentML/models/'
 
 # Dict with information how data was scaled. Created in apartmentML
 TRANSFORMERS_OBJECTS: dict = joblib.load(FOLDER_WITH_MODELS + 'transformers_info')
+print(TRANSFORMERS_OBJECTS['conditions']['transformer-objects']['LabelTransformer'].classes_)
 
 
 def search_different_types_column(data_frame):
@@ -79,3 +80,12 @@ def return_original_distance(value):
 def return_original_rooms_number(values: np.array):
     value = np.argmax(values) + 1
     return value
+
+
+if __name__ == '__main__':
+    data = {'area': 32, 'kitchen_area': 8, 'living_area': 12, 'rooms': 1, 'floor': 1,
+            'floors': 5, 'balconies': 0, 'ceiling_height': 2.5, 'conditions': 'Luxury',
+            'walls_material': 'Brick', 'building_type': 'New building',
+            'distance_to_center': 5, 'user_id': 3}
+    user_id = data.pop('user_id')
+    scaling_data_to_good_view(pd.DataFrame([data]))
