@@ -66,7 +66,7 @@ def predict_area_for_user(user_id):
     return 1
 
 
-# @celery.task
+@celery.task
 def predict_distance_to_center_for_user(user_id):
     connection, cursor = create_connection()
     data = get_data_from_db(user_id, cursor, 'distance_to_center')
@@ -95,21 +95,29 @@ def predict_distance_to_center_for_user(user_id):
 
 
 @celery.task
-def predict_rooms_number_for_user(data: dict):
-    user_id = data.pop('user_id')
+def predict_rooms_number_for_user(user_id):
+    connection, cursor = create_connection()
+    data = get_data_from_db(user_id, cursor, 'rooms')
 
-    rooms_prediction_model = load_models('rooms')
+    if not data:
+        return
+
+    del data['rooms']
+
+    data_to_solve_id = data.pop('id')
     data_to_predict = scaling_data_to_good_view(pd.DataFrame([data]))
+    rooms_prediction_model = load_models('rooms')
 
     graph = tf.get_default_graph()
     with graph.as_default():
         predicted_rooms = rooms_prediction_model.predict(data_to_predict)
 
-    data['rooms'] = return_original_rooms_number(predicted_rooms)
-    data['user_id'] = user_id
+    original_rooms = return_original_rooms_number(predicted_rooms[0])
+    K.clear_session()
 
-    connection, cursor = create_connection()
-    # write_to_db(data, cursor)
+    update_predicted_data(cursor, user_id=user_id, column='rooms', predicted_value=original_rooms,
+                          data_to_solve_id=data_to_solve_id)
+
     connection.commit()
 
     return 1

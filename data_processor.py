@@ -75,16 +75,7 @@ def return_original_distance(value):
     return round(original_value[0][0], 2)
 
 
-# Return original count of rooms. Add 1 because in one hot enc class started from 0 but min class in pur case is 1
+# Return original count of rooms. Add 1 because in one hot enc class started from 0 but min class in our case is 1
 def return_original_rooms_number(values: np.array):
     value = np.argmax(values) + 1
     return value
-
-
-if __name__ == '__main__':
-    data = {'area': 32, 'kitchen_area': 8, 'living_area': 12, 'rooms': 1, 'floor': 1,
-            'floors': 5, 'balconies': 0, 'ceiling_height': 2.5, 'conditions': 'Luxury',
-            'walls_material': 'Brick', 'building_type': 'New building',
-            'distance_to_center': 5, 'user_id': 3}
-    user_id = data.pop('user_id')
-    scaling_data_to_good_view(pd.DataFrame([data]))

@@ -23,14 +23,14 @@ def predict_area():
 @app.route('/predictDistance/', methods=['POST'])
 def predict_distance_to_center():
     user_id = request.form.get('user_id')
-    predict_distance_to_center_for_user(user_id)
+    predict_distance_to_center_for_user.delay(user_id)
     return 'OK'
 
 
 @app.route('/predictRooms/', methods=['POST'])
 def predict_rooms():
-    data = request.json
-    predict_rooms_number_for_user.delay(data)
+    user_id = request.form.get('user_id')
+    predict_rooms_number_for_user.delay(user_id)
     return 'OK'
 
 
