@@ -1,6 +1,6 @@
 
 
-columns_from_db = ['id', 'price', 'area', 'rooms', 'floor', 'floors', 'building_type', 'distance_to_center',
+columns_from_db = ['id', 'cost', 'area', 'rooms', 'floor', 'floors', 'building_type', 'distance_to_center',
                    'living_area', 'kitchen_area', 'conditions', 'walls_material', 'balconies', 'ceiling_height']
 
 

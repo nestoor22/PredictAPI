@@ -7,7 +7,7 @@ from data_processor import return_original_price, return_original_area, return_o
     return_original_rooms_number, scaling_data_to_good_view
 
 #  celery -A predict_data.celery worker -l info -P gevent           -- for running celery
-
+#  celery worker -A quick_publisher --loglevel=debug --concurrency=4
 
 celery = Celery('', broker='redis://localhost:6380/0')
 
@@ -16,12 +16,12 @@ celery = Celery('', broker='redis://localhost:6380/0')
 def predict_price_for_user(user_id):
     connection, cursor = create_connection()
     price_prediction_model = load_models('price')
-    data = get_data_from_db(user_id, cursor, 'price')
+    data = get_data_from_db(user_id, cursor, 'cost')
 
     if not data:
         return
 
-    del data['price']
+    del data['cost']
 
     data_to_solve_id = data.pop('id')
     data_to_predict = scaling_data_to_good_view(pd.DataFrame([data]))
@@ -33,7 +33,7 @@ def predict_price_for_user(user_id):
     original_price = return_original_price(predicted_price[0])
     K.clear_session()
 
-    update_predicted_data(cursor, user_id=user_id, column='price', predicted_value=original_price,
+    update_predicted_data(cursor, user_id=user_id, column='cost', predicted_value=original_price,
                           data_to_solve_id=data_to_solve_id)
 
     connection.commit()
@@ -42,21 +42,28 @@ def predict_price_for_user(user_id):
 
 
 @celery.task
-def predict_area_for_user(data: dict):
-    user_id = data['user_id']
-
+def predict_area_for_user(user_id):
+    connection, cursor = create_connection()
+    data = get_data_from_db(user_id, cursor, 'area')
     area_prediction_model = load_models('area')
+
+    if not data:
+        return
+
+    del data['area']
+
+    data_to_solve_id = data.pop('id')
     data_to_predict = scaling_data_to_good_view(pd.DataFrame([data]))
 
     graph = tf.get_default_graph()
     with graph.as_default():
         predicted_area = area_prediction_model.predict(data_to_predict)
 
-    data['area'] = return_original_area(predicted_area)
-    data['user_id'] = user_id
+    original_area = return_original_area(predicted_area[0])
+    K.clear_session()
 
-    connection, cursor = create_connection()
-    # write_to_db(data, cursor)
+    update_predicted_data(cursor, user_id=user_id, column='area', predicted_value=original_area,
+                          data_to_solve_id=data_to_solve_id)
     connection.commit()
 
     return 1

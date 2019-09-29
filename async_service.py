@@ -15,8 +15,8 @@ def predict_price():
 
 @app.route('/predictArea/', methods=['POST'])
 def predict_area():
-    data = request.json
-    predict_area_for_user.delay(data)
+    user_id = request.form.get('user_id')
+    predict_area_for_user.delay(user_id)
     return 'OK'
 
 
