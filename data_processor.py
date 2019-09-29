@@ -20,9 +20,10 @@ def search_different_types_column(data_frame):
 
     # Detect data types
     for column in data_frame:
+        # If type of column is int or float - add to numeric columns list
         if data_frame[column].dtype == np.int64 or data_frame[column].dtype == np.float64:
             numeric_columns.append(column)
-
+        # If type of column is object - add to string columns list
         elif data_frame[column].dtype == object:
             string_columns.append(column)
 
@@ -30,6 +31,10 @@ def search_different_types_column(data_frame):
 
 
 def scaling_data_to_good_view(data_frame):
+    """
+    :param data_frame: pandas dataframe with original data
+    :return: pandas dataframe with scaled data
+    """
 
     # Two list with columns names
     numeric_columns, string_columns = search_different_types_column(data_frame)
@@ -41,12 +46,15 @@ def scaling_data_to_good_view(data_frame):
 
     # Scale string columns
     for column in string_columns:
+        # For each column save information to dict
         label_to_num_transformer = TRANSFORMERS_OBJECTS[column]['transformer-objects']['LabelTransformer']
         one_hot_transformer = TRANSFORMERS_OBJECTS[column]['transformer-objects']['OneHotTransformer']
 
+        # Convert strings to numbers
         labels_number = label_to_num_transformer.transform(data_frame[column].values.reshape(-1, 1))
         labels_to_binary = one_hot_transformer.transform(labels_number.reshape(-1, 1)).toarray()
 
+        # Create dataframe with one-hot-encoded data
         one_hot_dataset = pd.DataFrame(labels_to_binary, columns=[column+'_'+str(int(i))
                                                                   for i in range(labels_to_binary.shape[1])])
 
