@@ -1,5 +1,4 @@
 
-
 columns_from_db = ['id', 'cost', 'area', 'rooms', 'floor', 'floors', 'building_type', 'distance_to_center',
                    'living_area', 'kitchen_area', 'conditions', 'walls_material', 'balconies', 'ceiling_height']
 
@@ -51,3 +50,12 @@ def get_data_from_db(user_id, db_cursor, column_to_predict):
 
     db_cursor.execute(sql_query)
     return db_cursor.fetchone()
+
+
+def predict_data_with_model(model, data_to_predict):
+    import tensorflow as tf
+    graph = tf.get_default_graph()
+    with graph.as_default():
+        predicted_value = model.predict(data_to_predict)
+
+    return predicted_value[0]
