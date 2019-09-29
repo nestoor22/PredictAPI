@@ -22,8 +22,8 @@ def predict_area():
 
 @app.route('/predictDistance/', methods=['POST'])
 def predict_distance_to_center():
-    data = request.json
-    predict_distance_to_center_for_user.delay(data)
+    user_id = request.form.get('user_id')
+    predict_distance_to_center_for_user(user_id)
     return 'OK'
 
 

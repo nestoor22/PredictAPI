@@ -70,9 +70,9 @@ def return_original_area(value):
 
 # Return original distance
 def return_original_distance(value):
-    original_value = TRANSFORMERS_OBJECTS['DistanceToCenter']['transformer-object'].\
+    original_value = TRANSFORMERS_OBJECTS['distance_to_center']['transformer-object'].\
         inverse_transform(value.reshape(1, -1))
-    return original_value[0][0]
+    return round(original_value[0][0], 2)
 
 
 # Return original count of rooms. Add 1 because in one hot enc class started from 0 but min class in pur case is 1
