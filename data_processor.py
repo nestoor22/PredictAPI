@@ -7,7 +7,6 @@ FOLDER_WITH_MODELS = '../apartmentML/models/'
 
 # Dict with information how data was scaled. Created in apartmentML
 TRANSFORMERS_OBJECTS: dict = joblib.load(FOLDER_WITH_MODELS + 'transformers_info')
-print(TRANSFORMERS_OBJECTS['conditions']['transformer-objects']['LabelTransformer'].classes_)
 
 
 def search_different_types_column(data_frame):
@@ -59,14 +58,14 @@ def scaling_data_to_good_view(data_frame):
 
 # Return original price
 def return_original_price(value):
-    original_value = TRANSFORMERS_OBJECTS['Cost']['transformer-object'].inverse_transform(value.reshape(1, -1))
-    return original_value[0][0]
+    original_value = TRANSFORMERS_OBJECTS['cost']['transformer-object'].inverse_transform(value.reshape(1, -1))
+    return int(original_value[0][0])
 
 
 # Return original area
 def return_original_area(value):
-    original_value = TRANSFORMERS_OBJECTS['Area']['transformer-object'].inverse_transform(value.reshape(1, -1))
-    return original_value[0][0]
+    original_value = TRANSFORMERS_OBJECTS['area']['transformer-object'].inverse_transform(value.reshape(1, -1))
+    return int(original_value[0][0])
 
 
 # Return original distance

@@ -1,9 +1,15 @@
+
+
+columns_from_db = ['id', 'price', 'area', 'rooms', 'floor', 'floors', 'building_type', 'distance_to_center',
+                   'living_area', 'kitchen_area', 'conditions', 'walls_material', 'balconies', 'ceiling_height']
+
+
 def create_connection():
     # Create connection to database
     import mysql.connector
     connection = mysql.connector.connect(host='127.0.0.1', port=3306, user='root', password='asdfghjkl228',
                                          use_pure=True)
-    cursor = connection.cursor()
+    cursor = connection.cursor(dictionary=True, buffered=True)
     return connection, cursor
 
 
@@ -28,16 +34,20 @@ def load_models(model_predict=None):
         return None
 
 
-def write_to_db(data: dict, db_cursor):
-    place_holders = ", ".join("'"+str(value)+"'" for value in data.values())
-    columns_query = ','.join(list(data.keys()))
-    sql_query = """INSERT INTO dream_house.dream_house_datatopredict (%s) VALUES (%s)""" % (columns_query, place_holders)
+def update_predicted_data(db_cursor, **kwargs):
+
+    sql_query = """UPDATE dream_house.dream_house_datatopredict SET %s=%s 
+                   WHERE user_id=%s AND id=%s""" % (kwargs['column'], kwargs['predicted_value'],
+                                                    kwargs['user_id'], kwargs['data_to_solve_id'])
+
     db_cursor.execute(sql_query)
 
 
-if __name__ == '__main__':
-    d = {'user_id': 1, 'rooms': 3, 'distance_to_center': 3.4, 'area': 126, 'floor': 2, 'building_type': 'New building',
-         'living_area': 96, 'kitchen_area': 22, 'conditions': 'luxury', 'walls_material': 'brick',
-         'balconies': 0, 'ceiling_height': 2.75, 'floors': 5}
-    con, cur = create_connection()
-    write_to_db(d, cur)
+def get_data_from_db(user_id, db_cursor, column_to_predict):
+    columns_to_get = ','.join(columns_from_db)
+
+    sql_query = """SELECT %s FROM dream_house.dream_house_datatopredict 
+                   WHERE user_id=%s AND %s IS NULL""" % (columns_to_get, user_id, column_to_predict)
+
+    db_cursor.execute(sql_query)
+    return db_cursor.fetchone()
