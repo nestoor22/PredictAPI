@@ -5,7 +5,7 @@ from data_processor import return_original_price, return_original_area, return_o
     return_original_rooms_number, scaling_data_to_good_view
 from helpers import load_models, create_connection, update_predicted_data, get_data_from_db, predict_data_with_model
 
-#  celery -A predict_data.celery worker --loglevel=debug --concurrency=4 -P gevent           -- for running celery
+#  celery -A predict_data.celery worker --loglevel=debug --concurrency=4          -- for running celery
 
 # Create Celery object with Redis as broker
 celery = Celery('', broker='redis://localhost:6380/0')
