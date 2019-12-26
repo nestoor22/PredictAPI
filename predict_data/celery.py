@@ -1,5 +1,6 @@
 import pandas as pd
 from celery import Celery
+from secret import REDIS_URL
 from keras import backend as K
 from data_processor import return_original_price, return_original_area, return_original_distance,\
     return_original_rooms_number, scaling_data_to_good_view
@@ -8,7 +9,7 @@ from helpers import load_models, create_connection, update_predicted_data, get_d
 #  celery -A predict_data.celery worker --loglevel=debug --concurrency=4          -- for running celery
 
 # Create Celery object with Redis as broker
-celery = Celery('', broker='redis://localhost:6380/0')
+celery = Celery('', broker=REDIS_URL)
 
 
 @celery.task
@@ -17,9 +18,13 @@ def predict_price_for_user(user_id):
     :param user_id: user_id which will be used to get data from database
     :return: None
     """
+    features = ['area', 'rooms', 'floor', 'balconies', 'distance_to_center']
 
     connection, cursor = create_connection()
     data = get_data_from_db(user_id, cursor, 'cost')
+    for feature in features:
+        if feature not in data or data.get(feature, None) is None:
+            return
 
     # Check if new data to predict exist
     if not data:
@@ -30,7 +35,7 @@ def predict_price_for_user(user_id):
     price_prediction_model = load_models('price')                                       # Load model
 
     data_to_solve_id = data.pop('id')
-    data_to_predict = scaling_data_to_good_view(pd.DataFrame([data]))                   # Scale data
+    data_to_predict = scaling_data_to_good_view(pd.DataFrame([data])[features])                   # Scale data
 
     # Rescale predicted value
     original_price = return_original_price(predict_data_with_model(price_prediction_model, data_to_predict))
@@ -48,9 +53,14 @@ def predict_area_for_user(user_id):
     :param user_id: user_id which will be used to get data from database
     :return: None
     """
+    features = ['cost', 'rooms', 'floor', 'balconies', 'distance_to_center']
 
     connection, cursor = create_connection()
     data = get_data_from_db(user_id, cursor, 'area')
+
+    for feature in features:
+        if feature not in data or data.get(feature, None) is None:
+            return
 
     # Check if new data to predict exist
     if not data:
@@ -60,7 +70,7 @@ def predict_area_for_user(user_id):
 
     area_prediction_model = load_models('area')                                 # Load model
     data_to_solve_id = data.pop('id')
-    data_to_predict = scaling_data_to_good_view(pd.DataFrame([data]))           # Scale data
+    data_to_predict = scaling_data_to_good_view(pd.DataFrame([data])[features])           # Scale data
 
     # Rescale predicted value
     original_area = return_original_area(predict_data_with_model(area_prediction_model, data_to_predict))
@@ -78,9 +88,14 @@ def predict_distance_to_center_for_user(user_id):
     :param user_id: user_id which will be used to get data from database
     :return: None
     """
+    features = ['cost', 'area', 'rooms', 'floor', 'balconies']
 
     connection, cursor = create_connection()
     data = get_data_from_db(user_id, cursor, 'distance_to_center')
+
+    for feature in features:
+        if feature not in data or data.get(feature, None) is None:
+            return
 
     # Check if new data to predict exist
     if not data:
@@ -90,7 +105,7 @@ def predict_distance_to_center_for_user(user_id):
 
     distance_to_center_prediction_model = load_models('distance_to_center')         # load model
     data_to_solve_id = data.pop('id')
-    data_to_predict = scaling_data_to_good_view(pd.DataFrame([data]))               # Scale data
+    data_to_predict = scaling_data_to_good_view(pd.DataFrame([data])[features])               # Scale data
 
     # Rescale predicted value
     original_distance = return_original_distance(predict_data_with_model(distance_to_center_prediction_model,
@@ -110,9 +125,13 @@ def predict_rooms_number_for_user(user_id):
     :param user_id: user_id which will be used to get data from database
     :return: None
     """
-
+    features = ['cost', 'area', 'conditions', 'distance_to_center', 'city']
     connection, cursor = create_connection()
     data = get_data_from_db(user_id, cursor, 'rooms')
+
+    for feature in features:
+        if feature not in data or data.get(feature, None) is None:
+            return
 
     # Check if new data to predict exist
     if not data:
@@ -122,7 +141,7 @@ def predict_rooms_number_for_user(user_id):
 
     data_to_solve_id = data.pop('id')
 
-    data_to_predict = scaling_data_to_good_view(pd.DataFrame([data]))   # Scale data
+    data_to_predict = scaling_data_to_good_view(pd.DataFrame([data])[features])   # Scale data
     rooms_prediction_model = load_models('rooms')                       # load ml model
 
     # Rescale predicted value

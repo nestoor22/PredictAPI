@@ -1,7 +1,8 @@
+from secret import DB_PASSWORD, DB_USER
 
 # List of column which was used for model training. Except 'id'
 columns_from_db = ['id', 'cost', 'area', 'rooms', 'floor', 'floors', 'building_type', 'distance_to_center',
-                   'living_area', 'kitchen_area', 'conditions', 'walls_material', 'balconies', 'ceiling_height']
+                   'living_area', 'kitchen_area', 'conditions', 'walls_material', 'balconies', 'ceiling_height', 'city']
 
 
 def create_connection():
@@ -10,7 +11,7 @@ def create_connection():
     """
     # Create connection to database
     import mysql.connector
-    connection = mysql.connector.connect(host='127.0.0.1', port=3306, user='<your_user>', password='<your_password>',
+    connection = mysql.connector.connect(host='localhost', port=3306, user=DB_USER, password=DB_PASSWORD,
                                          use_pure=True)
     cursor = connection.cursor(dictionary=True, buffered=True)
     return connection, cursor
