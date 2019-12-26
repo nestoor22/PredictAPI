@@ -1,9 +1,13 @@
+from secret import REDIS_URL
 from flask import Flask, request
 from predict_data.celery import predict_price_for_user, predict_rooms_number_for_user,\
     predict_area_for_user, predict_distance_to_center_for_user
 
 app = Flask(__name__)                                                       # Create app
-app.config['CELERY_BROKER_URL'] = 'redis://localhost:6380/0'                # Add celery settings to application
+
+# Add celery settings to application
+app.config['CELERY_BROKER_URL'] = REDIS_URL
+
 
 # Create flask routes. All functions get data with user_id as key and run celery task. If everything fine - return OK
 @app.route('/predictPrice/', methods=['POST'])

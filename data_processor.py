@@ -53,12 +53,13 @@ def scaling_data_to_good_view(data_frame):
         # Convert strings to numbers
         labels_number = label_to_num_transformer.transform(data_frame[column].values.reshape(-1, 1))
         labels_to_binary = one_hot_transformer.transform(labels_number.reshape(-1, 1)).toarray()
+        data_frame[column] = labels_number
 
         # Create dataframe with one-hot-encoded data
         one_hot_dataset = pd.DataFrame(labels_to_binary, columns=[column+'_'+str(int(i))
                                                                   for i in range(labels_to_binary.shape[1])])
 
-        data_frame = pd.concat([data_frame.drop(columns=column), one_hot_dataset], axis=1)
+        data_frame = pd.concat([data_frame, one_hot_dataset], axis=1)
 
     # Return dataframe with scaled data
     return data_frame

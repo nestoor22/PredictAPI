@@ -18,7 +18,7 @@ def predict_price_for_user(user_id):
     :param user_id: user_id which will be used to get data from database
     :return: None
     """
-    features = ['area', 'rooms', 'floor', 'balconies', 'distance_to_center']
+    features = ['area', 'rooms', 'floor', 'balconies', 'distance_to_center', 'city']
 
     connection, cursor = create_connection()
     data = get_data_from_db(user_id, cursor, 'cost')
@@ -53,7 +53,7 @@ def predict_area_for_user(user_id):
     :param user_id: user_id which will be used to get data from database
     :return: None
     """
-    features = ['cost', 'rooms', 'floor', 'balconies', 'distance_to_center']
+    features = ['cost', 'rooms', 'floor', 'balconies', 'distance_to_center', 'city']
 
     connection, cursor = create_connection()
     data = get_data_from_db(user_id, cursor, 'area')
@@ -88,7 +88,7 @@ def predict_distance_to_center_for_user(user_id):
     :param user_id: user_id which will be used to get data from database
     :return: None
     """
-    features = ['cost', 'area', 'rooms', 'floor', 'balconies']
+    features = ['cost', 'area', 'rooms', 'floor', 'balconies', 'city']
 
     connection, cursor = create_connection()
     data = get_data_from_db(user_id, cursor, 'distance_to_center')
