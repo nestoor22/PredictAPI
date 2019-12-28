@@ -11,6 +11,8 @@ from helpers import load_models, create_connection, update_predicted_data, get_d
 # Create Celery object with Redis as broker
 celery = Celery('', broker=REDIS_URL)
 
+cached_models = {}
+
 
 @celery.task
 def predict_price_for_user(user_id):
@@ -22,17 +24,18 @@ def predict_price_for_user(user_id):
 
     connection, cursor = create_connection()
     data = get_data_from_db(user_id, cursor, 'cost')
-    for feature in features:
-        if feature not in data or data.get(feature, None) is None:
-            return
 
     # Check if new data to predict exist
     if not data:
         return
 
+    for feature in features:
+        if feature not in data or data.get(feature, None) is None:
+            return
+
     del data['cost']                                                                    # Remove column which predict
 
-    price_prediction_model = load_models('price')                                       # Load model
+    price_prediction_model = get_model_from_cache('price')
 
     data_to_solve_id = data.pop('id')
     data_to_predict = scaling_data_to_good_view(pd.DataFrame([data])[features])                   # Scale data
@@ -58,17 +61,17 @@ def predict_area_for_user(user_id):
     connection, cursor = create_connection()
     data = get_data_from_db(user_id, cursor, 'area')
 
-    for feature in features:
-        if feature not in data or data.get(feature, None) is None:
-            return
-
     # Check if new data to predict exist
     if not data:
         return
 
+    for feature in features:
+        if feature not in data or data.get(feature, None) is None:
+            return
+
     del data['area']                                                            # Remove column which predict
 
-    area_prediction_model = load_models('area')                                 # Load model
+    area_prediction_model = get_model_from_cache('area')                                 # Load model
     data_to_solve_id = data.pop('id')
     data_to_predict = scaling_data_to_good_view(pd.DataFrame([data])[features])           # Scale data
 
@@ -93,17 +96,17 @@ def predict_distance_to_center_for_user(user_id):
     connection, cursor = create_connection()
     data = get_data_from_db(user_id, cursor, 'distance_to_center')
 
-    for feature in features:
-        if feature not in data or data.get(feature, None) is None:
-            return
-
     # Check if new data to predict exist
     if not data:
         return
 
+    for feature in features:
+        if feature not in data or data.get(feature, None) is None:
+            return
+
     del data['distance_to_center']                                                  # Remove column which predict
 
-    distance_to_center_prediction_model = load_models('distance_to_center')         # load model
+    distance_to_center_prediction_model = get_model_from_cache('distance_to_center')         # load model
     data_to_solve_id = data.pop('id')
     data_to_predict = scaling_data_to_good_view(pd.DataFrame([data])[features])               # Scale data
 
@@ -129,20 +132,20 @@ def predict_rooms_number_for_user(user_id):
     connection, cursor = create_connection()
     data = get_data_from_db(user_id, cursor, 'rooms')
 
-    for feature in features:
-        if feature not in data or data.get(feature, None) is None:
-            return
-
     # Check if new data to predict exist
     if not data:
         return
+
+    for feature in features:
+        if feature not in data or data.get(feature, None) is None:
+            return
 
     del data['rooms']                                                   # Remove column which predict
 
     data_to_solve_id = data.pop('id')
 
     data_to_predict = scaling_data_to_good_view(pd.DataFrame([data])[features])   # Scale data
-    rooms_prediction_model = load_models('rooms')                       # load ml model
+    rooms_prediction_model = get_model_from_cache('rooms')                       # load ml model
 
     # Rescale predicted value
     original_rooms = return_original_rooms_number(predict_data_with_model(rooms_prediction_model, data_to_predict))
@@ -154,3 +157,12 @@ def predict_rooms_number_for_user(user_id):
 
     connection.commit()
 
+
+def get_model_from_cache(model_name):
+    if model_name not in cached_models:
+        price_prediction_model = load_models(model_name)  # Load model
+        cached_models[model_name] = price_prediction_model
+    else:
+        price_prediction_model = cached_models[model_name]
+
+    return price_prediction_model
