@@ -1,4 +1,5 @@
-from secret import DB_PASSWORD, DB_USER
+import datetime
+from secret import DB_USER, DB_HOST, DB_PORT, DB_DATABASE, DB_PASSWORD
 
 # List of column which was used for model training. Except 'id'
 columns_from_db = ['id', 'cost', 'area', 'rooms', 'floor', 'floors', 'building_type', 'distance_to_center',
@@ -10,10 +11,16 @@ def create_connection():
     :return: database connection and cursor
     """
     # Create connection to database
-    import mysql.connector
-    connection = mysql.connector.connect(host='localhost', port=3306, user=DB_USER, password=DB_PASSWORD,
-                                         use_pure=True)
-    cursor = connection.cursor(dictionary=True, buffered=True)
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    connection = psycopg2.connect(host=DB_HOST,
+                                  port=DB_PORT,
+                                  user=DB_USER,
+                                  database=DB_DATABASE,
+                                  password=DB_PASSWORD,
+                                  cursor_factory=RealDictCursor)
+
+    cursor = connection.cursor()
     return connection, cursor
 
 
@@ -47,9 +54,10 @@ def update_predicted_data(db_cursor, **kwargs):
     :param kwargs: named arguments
     :return: None
     """
-    sql_query = """UPDATE dream_house.dream_house_datatopredict SET %s=%s 
-                   WHERE user_id=%s AND id=%s""" % (kwargs['column'], kwargs['predicted_value'],
-                                                    kwargs['user_id'], kwargs['data_to_solve_id'])
+    sql_query = """UPDATE dream_house_datatopredict SET %s=%s,
+                   solved_at='%s' WHERE user_id=%s AND id=%s""" % (kwargs['column'], kwargs['predicted_value'],
+                                                                   datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
+                                                                   kwargs['user_id'], kwargs['data_to_solve_id'])
 
     db_cursor.execute(sql_query)
 
@@ -63,7 +71,7 @@ def get_data_from_db(user_id, db_cursor, column_to_predict):
     """
     columns_to_get = ','.join(columns_from_db)
 
-    sql_query = """SELECT %s FROM dream_house.dream_house_datatopredict 
+    sql_query = """SELECT %s FROM dream_house_datatopredict 
                    WHERE user_id=%s AND %s IS NULL""" % (columns_to_get, user_id, column_to_predict)
 
     db_cursor.execute(sql_query)
