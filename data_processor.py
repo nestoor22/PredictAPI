@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 # Constants
-FOLDER_WITH_MODELS = '../apartmentML/models/'
+FOLDER_WITH_MODELS = 'models/'
 
 # Dict with information how data was scaled. Created in apartmentML
 TRANSFORMERS_OBJECTS: dict = joblib.load(FOLDER_WITH_MODELS + 'transformers_info')
