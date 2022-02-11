@@ -35,7 +35,7 @@ more-itertools==7.2.0
 multidict==4.5.2
 numpy==1.17.2
 pandas==0.25.1
-protobuf==3.9.1
+protobuf==3.15.0
 psycopg2==2.8.4
 pycparser==2.19
 python-dateutil==2.8.0
